@@ -1,0 +1,23 @@
+Jugador: g
+
+Secuencia actual de la ronda 0
+V
+Ingreso: J
+Gastó 2 vidas, vidas actuales: 1
+
+Secuencia actual de la ronda 0
+V
+Ingreso: V
+Obtuvo 1 punto por esta ronda
+
+Secuencia actual de la ronda 1
+VR
+Ingreso: VA
+Gastó 1 vidas, vidas actuales: 0
+
+Secuencia actual de la ronda 1
+VR
+Ingreso: VA
+Total de puntos del jugador g: 1
+GANADORES:
+- g

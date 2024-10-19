@@ -1,0 +1,38 @@
+# depslib dependency file v1.0
+1727482466 source:c:\users\diego\documents\algoritmos\tp_cmon_dice\pila.c
+	"pila.h"
+
+1728685378 c:\users\diego\documents\algoritmos\tp_cmon_dice\pila.h
+	<stdio.h>
+	"nodo.h"
+
+1728838521 c:\users\diego\documents\algoritmos\tp_cmon_dice\nodo.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
+1728766620 source:c:\users\diego\documents\algoritmos\tp_cmon_dice\main.c
+	<stdio.h>
+	<string.h>
+	<stdlib.h>
+	"funcion.h"
+
+1729363652 source:c:\users\diego\documents\algoritmos\tp_cmon_dice\funcion.c
+	"funcion.h"
+
+1729291680 c:\users\diego\documents\algoritmos\tp_cmon_dice\funcion.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+	<time.h>
+	<curl/curl.h>
+	<conio.h>
+	"cola.h"
+
+1729355581 source:c:\users\diego\documents\algoritmos\tp_cmon_dice\cola.c
+	"cola.h"
+
+1728838525 c:\users\diego\documents\algoritmos\tp_cmon_dice\cola.h
+	"nodo.h"
+
