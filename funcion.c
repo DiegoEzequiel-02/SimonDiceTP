@@ -50,38 +50,43 @@ void leerConfiguraciones(int* vidas,int* segs,int* secuen){
 
 void vaciarVector(int vec[], int filas){
     int i;
+    int *ptr = vec;
     for(i = 0; i< filas;i++){
-        vec[i] = 0;
+        *ptr = 0;
+        ptr++;
     }
 }
 
-char** crearMatriz(int filas, int columnas){
-    char **matriz = (char **)malloc(filas * sizeof(char *));
-    if (matriz == NULL) {
-        printf("Error al reservar memoria.\n");
+void destruirMatriz(void** mat, int filas){
+    int i;
+
+    for(i = 0; i < filas;i++){
+        free(mat[i]);
+    }
+    free(mat);
+}
+
+void** crearMatriz(int filas, int columnas, size_t tamElem){
+    void** mat = malloc(filas* sizeof(filas));
+    int i;
+    if(!mat){
         return NULL;
     }
-
-    for (int i = 0; i < filas; i++) {
-        matriz[i] = (char *)malloc(columnas * sizeof(char));
-        if (matriz[i] == NULL) {
-            printf("Error al reservar memoria para la fila %d.\n", i);
-            for (int j = 0; j < i; j++) {
-                free(matriz[j]);
-            }
-            free(matriz);
-            return NULL;
+    for(i = 0; i< filas;i++){
+        mat[i] = malloc(columnas*tamElem);
+        if(!mat[i]){
+            destruirMatriz(mat,i);
         }
     }
-    return matriz;
+    return mat;
 }
+
 
 void mostrarNombres(char** nombres, int cant){
     int i;
-
+    char** ptr = nombres;
     for(i = 0;i < cant;i++){
-        if (nombres[i][0] != '\0')  // Solo mostrar las filas no vacías
-            printf("Jugador %d: %s\n", i + 1, nombres[i]);
+        printf("Jugador %d: %s\n", i + 1, *(ptr+i));
     }
 }
 
@@ -124,6 +129,7 @@ void guardarNombres(char** nombres){
     }
 
     fclose(pf);
+    remove("nombres.txt");
 }
 
 void dificultad(char* dif){
@@ -198,7 +204,7 @@ void menu(){
     if(opc == 'A'){
         filas = pedirNombres();
         if(filas != 0){
-            char** nombres = (char**)crearMatriz(filas, 20);
+            char** nombres = (char**)crearMatriz(filas, 20, sizeof(char));
             int* puntos = (int*)malloc(sizeof(int));
             vaciarVector(puntos,filas);
 
@@ -376,7 +382,9 @@ int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* c
                 *vidas -= vidasASacar;  // Descontar las vidas
 
                 printf("Ahora tiene %d vidas\n", *vidas);
+
                 fprintf(informe,"Gastó %d vidas, vidas actuales: %d\n",vidasASacar,*vidas);
+
                 printf("RECUERDE SOLO PONER LAS LETRAS PENDIENTES!!!\n");
                 return -1;
             } else {
@@ -409,6 +417,7 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
     int gastoPrevio = 0;
     int cantParaRestar = 0;
     int segsOrig = segsParaCompletar;
+
     char txt_informe[31] = "informe_texto_";
     char fechaActual[20];
     crearFecha(fechaActual);

@@ -14,7 +14,7 @@
 void guardarConfiguracion (char dif);
 void leerConfiguraciones(int* vidas,int* segs,int* secuen);
 void vaciarVector(int vec[], int filas);
-char** crearMatriz(int filas, int columnas);
+void** crearMatriz(int filas, int columnas, size_t tamElem);
 void mostrarNombres(char** nombres, int cant);
 int pedirNombres();
 void guardarNombres(char** nombres);
