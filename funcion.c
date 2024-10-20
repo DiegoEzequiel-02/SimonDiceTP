@@ -374,6 +374,8 @@ void temporizadorDeEntrada(int timeout, char* entrada) {
     if (timeElapsed == timeout) {
         printf("\nNO HAY MAS TIEMPO\n");
     }
+
+    fflush(stdin);
 }
 
 void juegosXTurno(t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaCompletar, FILE* informe) {
@@ -433,7 +435,7 @@ int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* c
 
                     if (scanf("%d", &gastaVidas) != 1) { // Verificar si la entrada fue exitosa
                         printf("Entrada invalida. Por favor ingresa 1 o 0.\n");
-                        while (getchar() != '\n'); // Limpiar el buffer
+                        fflush(stdin);
                         gastaVidas = -1; // Para asegurarte de que la condición del bucle siga siendo verdadera
                     }
                 } while (gastaVidas != 1 && gastaVidas != 0);
@@ -550,6 +552,7 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
                 traducirAColores(&tc,sizeof(char));
                 mostrarParcial(&tc,cant);
             }
+            fflush(stdin);
             Sleep(3000);
         }
 
