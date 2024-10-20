@@ -8,6 +8,7 @@
 #include <time.h>
 #include <curl/curl.h>
 #include <conio.h>
+#include <windows.h>
 #include "cola.h"
 
 void guardarConfiguracion (char dif);

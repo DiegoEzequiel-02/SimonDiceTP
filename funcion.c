@@ -321,62 +321,127 @@ void traducirAColores(t_cola *c, unsigned tam){
     }
 }
 
-void juegosXTurno (t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaCompletar, FILE *informe){
-    time_t inicio, actual;
-    char ingresa[50];
-    char* ptr;
+#include <stdio.h>
+#include <windows.h>
+#include <string.h>
 
-    printf("Secuencia actual (mostrar hasta el digito %d):\n", cant+1);
+#include <stdio.h>
+#include <windows.h>
+#include <string.h>
+
+void temporizadorDeEntrada(int timeout, char* entrada) {
+    int timeElapsed = 0;
+    int estadoTeclas[256] = {0}; // Array para rastrear el estado de las teclas
+    char* ptr = entrada; // Puntero que apunta al final de la cadena
+
+    // Inicializar la cadena como vacía
+    memset(entrada, 0, 50); // Asegúrate de que la cadena esté vacía al inicio
+
+    while (timeElapsed < timeout) {
+        for (int i = 'A'; i <= 'Z'; i++) { // Solo letras mayúsculas
+            // Verificar si la tecla está presionada
+            if (GetAsyncKeyState(i) & 0x8000) {
+                // Solo procesar si la tecla no ha sido procesada previamente
+                if (estadoTeclas[i] == 0) {
+                    // Agregar la letra a la cadena de entrada
+                    if (ptr < entrada + 49) { // Asegurarse de no exceder el tamaño del buffer
+                        *ptr = (char)i; // Guardar la letra presionada
+                        printf("%c", *ptr);
+                        ptr++; // Mover el puntero al siguiente espacio
+                        *ptr = '\0'; // Null-terminar la cadena
+                    }
+                    estadoTeclas[i] = 1; // Marcar la tecla como procesada
+                }
+            } else {
+                // Restablecer el estado cuando la tecla no está presionada
+                estadoTeclas[i] = 0;
+            }
+        }
+
+        // Manejo de la tecla de retroceso
+        if (GetAsyncKeyState(VK_BACK) & 0x8000) { // Tecla de retroceso
+            if (ptr > entrada) { // Verifica si hay caracteres para borrar
+                ptr--; // Mover el puntero hacia atrás
+                *ptr = '\0'; // Null-terminar la cadena después de borrar
+                printf("\b \b"); // Borrar el carácter en la consola
+            }
+        }
+
+        // Manejo de la tecla ENTER
+        if (GetAsyncKeyState(VK_RETURN) & 0x8000) { // Tecla ENTER
+            break; // Salir del bucle si se presiona ENTER
+        }
+
+        Sleep(10); // Pausa corta para evitar carga alta en CPU
+        timeElapsed += 20; // Aumentar el tiempo transcurrido
+    }
+
+    if (timeElapsed == timeout) {
+        printf("\nNO HAY MAS TIEMPO\n");
+    }
+}
+
+void juegosXTurno(t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaCompletar, FILE* informe) {
+    char ingresa[50] = "";  // Inicializa la cadena como vacía
+    char* ptr;
+    printf("Secuencia actual (mostrar hasta el digito %d):\n", cant + 1);
     mostrarDeAUno(orig, cant);
     Sleep(secuen * 1000);  // Mostrar secuencia por un tiempo determinado
     system("cls");
 
-    guardarColaEnArchivo(orig,informe,cant);
-    // Obtener el tiempo de inicio
-    inicio = time(NULL);
+    guardarColaEnArchivo(orig, informe, cant);
     fflush(stdin);
 
     printf("Ingrese secuencia sin espacios (tiene %d segundos): ", segsParaCompletar);
+    temporizadorDeEntrada(segsParaCompletar * 1000, ingresa); // Pasar el buffer de entrada
+    fflush(stdin);
 
-     // Bucle para esperar la entrada del usuario y verificar el tiempo
-    while (1) {
-        actual = time(NULL);
-        fprintf(informe,"Ingreso: ");
-        // Verificar si se supera el tiempo límite
-        if ((actual - inicio) >= segsParaCompletar) {
-            printf("\nNO HAY MAS TIEMPO\n");
-            break;
-        }
-        if (fgets(ingresa, 50, stdin) != NULL) {  // Verificar que fgets haya leído algo
-            // Eliminar el salto de línea que se incluye con fgets
-            ingresa[strcspn(ingresa, "\n")] = '\0';  // Reemplazar el salto de línea con '\0'
+    fprintf(informe, "Ingreso: ");
 
-            printf("Has ingresado: %s\n", ingresa);
-            break;
+    printf("\nHas ingresado: %s\n", ingresa);
+    Sleep(500);
+
+    // Verifica si se ha ingresado alguna secuencia
+    if (strcmp(ingresa, "") == 0) {
+        vaciarCola(aux); // Vacía la cola si no se ingresó nada
+    } else {
+        ptr = ingresa;  // Usa la cadena ingresada
+        while (*ptr != '\0') {
+            *ptr = AMAYOR(*ptr);
+            agregarACola(aux, ptr, sizeof(char));
+            ptr++;
         }
     }
-    ptr = ingresa;
-    while (*ptr != '\0') {
-        *ptr = AMAYOR(*ptr);
-        agregarACola(aux, ptr, sizeof(char));
-        ptr++;
-    }
 
-    guardarColaEnArchivo(aux,informe,cant);
+    fflush(stdin);
+    guardarColaEnArchivo(aux, informe, cant);
 }
+
+
 
 int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* contParaRestar, FILE *informe, int gastoPrevio){
     int gastaVidas;
     int vidasASacar;
     char aux;
+
+    if(colaVacia(tc_aux)){
+        printf("No puso nada de la secuencia, pierde 1 vida\n");
+        *vidas -= 1;
+        Sleep(500);
+        return -1;
+    }
     if (!compararColas(tc, tc_aux, *cant)) {
         if (*vidas > 0) {
-            do{
-                fflush(stdin);
-                printf("Secuencia incorrecta\n");
-                printf("Tiene %d vidas, quiere gastar? (1 - SI | 0 - NO):", *vidas);
-                scanf("%d", &gastaVidas);
-            } while(gastaVidas != 1 && gastaVidas != 0);
+                do {
+                    printf("Secuencia incorrecta\n");
+                    printf("Tiene %d vidas, quiere gastar? (1 - SI | 0 - NO):", *vidas);
+
+                    if (scanf("%d", &gastaVidas) != 1) { // Verificar si la entrada fue exitosa
+                        printf("Entrada invalida. Por favor ingresa 1 o 0.\n");
+                        while (getchar() != '\n'); // Limpiar el buffer
+                        gastaVidas = -1; // Para asegurarte de que la condición del bucle siga siendo verdadera
+                    }
+                } while (gastaVidas != 1 && gastaVidas != 0);
 
             if (gastaVidas == 1) {
                 do {
@@ -445,16 +510,18 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
         printf("=========TURNO DEL JUGADOR: %s=========\n", *(nombres + i));
         puntosXJugador = 0;  // Inicializar los puntos del jugador
         fprintf(informe,"Jugador: %s\n",*(nombres + i));
-
+        Sleep(1200);
         while (vidas >= 0 && gastaVidas != -2) {
+            system("cls");
             fprintf(informe,"\nSecuencia actual de la ronda %d: ",cant+1);
 
             if(gastaVidas == -1){
                 printf("Lo ultimo colocado:\n");
                 mostrarParcial(&tc_aux,cant - cantParaRestar); //Mostramos como quedó la secuencia despues de perder vidas
             }
-            fflush(stdin);
+
             juegosXTurno(&tc,&tc_aux,cant,secuen,segsParaCompletar,informe);
+            fflush(stdin);
             gastaVidas = verificarSecuencia(&tc,&tc_aux,&cant,&vidas,&cantParaRestar, informe, gastoPrevio);
 
              // Verificar si usó vidas o no y asignar los puntos
