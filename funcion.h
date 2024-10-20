@@ -27,4 +27,5 @@ int compararColas(t_cola* cola1, t_cola* cola2, int cant);
 void* buscarMayor (void* vec, size_t ce, size_t tam,int cmp(const void* a, const void* b));
 void guardarColaEnArchivo(t_cola* cola, FILE* informe, int cant);
 void mostrarYGuardarGanadores(char** nombres, int puntos[],int cantJug, FILE* archivo);
+void mostrarParcial(t_cola* c, int cant);
 #endif // FUNCION_H_INCLUDED

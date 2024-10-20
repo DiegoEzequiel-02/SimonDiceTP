@@ -100,6 +100,7 @@ int pedirNombres(){
     printf("Inserte jugadores (TERMINA INGRESANDO 'x'): \n");
 
     do {
+    fflush(stdin);
     printf("Ingrese nombre del jugador %d: ", contJug + 1);
     fgets(nombre, 20, stdin);
 
@@ -116,21 +117,24 @@ int pedirNombres(){
     return contJug;
 }
 
-void guardarNombres(char** nombres){
-    FILE* pf = fopen("nombres.txt","rt");
+void guardarNombres(char** nombres) {
+    FILE* pf = fopen("nombres.txt", "rt");
     char nombre[20];
-    int i= 0;
-    if(!pf){
+    int i = 0;
+    if (!pf) {
         return;
     }
-    while(fscanf(pf,"%s\n",nombre) == 1){
-        strcpy(*(nombres + i),nombre);
+    while (fgets(nombre, sizeof(nombre), pf)) {
+        // Eliminar el salto de línea que fgets almacena
+        nombre[strcspn(nombre, "\n")] = '\0';
+        strcpy(*(nombres + i), nombre);
         i++;
     }
 
     fclose(pf);
     remove("nombres.txt");
 }
+
 
 void dificultad(char* dif){
     // Bucle para seleccionar la dificultad
@@ -148,16 +152,16 @@ void dificultad(char* dif){
 void sortearJugadores(char** nombres, int cantJug) {
     char* aux;
     int cant = 0;
-
+    char** nombPtr = nombres;
     // Inicializa el generador de números aleatorios
     srand(time(NULL));
 
     while (cant < cantJug) {
         int pos = rand() % cantJug;
 
-        aux = nombres[cant];
-        nombres[cant] = nombres[pos];
-        nombres[pos] = aux;
+        aux = *(nombPtr + cant);
+        *(nombPtr + cant) = *(nombPtr + pos);
+        *(nombPtr + pos) = aux;
 
         cant++;
     }
@@ -372,10 +376,10 @@ int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* c
                 do {
                     printf("Ingrese cuantas vidas quiere gastar (máximo %d): ", *vidas);
                     scanf("%d", &vidasASacar);
-                } while (vidasASacar > *vidas && vidasASacar > cant);
+                } while ((vidasASacar > *vidas) && (vidasASacar > *cant));
 
                 // Retroceder la secuencia según las vidas gastadas
-                while (*contParaRestar < vidasASacar && (*cant - *contParaRestar) >= 0) {
+                while ((*contParaRestar < vidasASacar) && (*cant - *contParaRestar) >= 0) {
                     sacarDeCola(tc_aux,&aux,sizeof(char));  // Eliminar los dígitos incorrectos ingresados
                     *contParaRestar = *contParaRestar + 1;
                 }
@@ -435,11 +439,11 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
         fprintf(informe,"Jugador: %s\n",*(nombres + i));
 
         while (vidas >= 0 && gastaVidas != -2) {
-            fprintf(informe,"\nSecuencia actual de la ronda %d: ",cant);
+            fprintf(informe,"\nSecuencia actual de la ronda %d: ",cant+1);
 
             if(gastaVidas == -1){
                 printf("Lo ultimo colocado:\n");
-                mostrarDeAUno(&tc_aux,cant - cantParaRestar); //Mostramos como quedó la secuencia despues de perder vidas
+                mostrarParcial(&tc_aux,cant - cantParaRestar); //Mostramos como quedó la secuencia despues de perder vidas
             }
             fflush(stdin);
             juegosXTurno(&tc,&tc_aux,cant,secuen,segsParaCompletar,informe);
@@ -500,8 +504,8 @@ void mostrarYGuardarGanadores(char** nombres, int puntos[],int cantJug, FILE* ar
     printf("El/los ganador/es son:\n");
     for(i = 0; i< cantJug;i++){
         if(*(ptr + i) == *ganador){
-            printf("- %s\n", *(nombres + i));
-            fprintf(archivo,"- %s\n",*(nombres + i));
+            printf("- %s | %d pts\n", *(nombres + i),*ganador);
+            fprintf(archivo,"- %s | %d pts\n",*(nombres + i),*ganador);
         }
     }
 }
@@ -517,10 +521,6 @@ void* buscarMayor (void* vec, size_t ce, size_t tam,int cmp(const void* a, const
     }
 
     return mayor;
-}
-
-void mostrar(const void* a){
-    printf("%c ",*(char*)a);
 }
 
 void guardarColaEnArchivo(t_cola* cola, FILE* informe, int cant) {
@@ -566,7 +566,26 @@ int compararColas(t_cola *cola1, t_cola *cola2, int cant) {
     return 1;
 }
 
+void mostrar(const void* a){
+    printf("%c\n",*(char*)a);
+}
+
 void mostrarDeAUno(t_cola* c, int cant){
+    int cont = 0;
+    t_nodo* actual = c->prim;  // Usar un puntero auxiliar en lugar de modificar 'prim'
+
+    while(actual != NULL && cont <= cant){
+        printf("(%d) ", cont+1);
+        mostrar(actual->info);
+        Sleep(1500);
+        system("cls");
+        actual = actual->sig_nodo;  // Mover el puntero auxiliar
+        cont++;
+    }
+    printf("\n");
+}
+
+void mostrarParcial(t_cola* c, int cant){
     int cont = 0;
     t_nodo* actual = c->prim;  // Usar un puntero auxiliar en lugar de modificar 'prim'
 
