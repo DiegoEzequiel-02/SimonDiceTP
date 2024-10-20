@@ -1,6 +1,5 @@
 #ifndef FUNCION_H_INCLUDED
 #define FUNCION_H_INCLUDED
-#define MAX_NUMS 10
 #define AMAYOR(x)(x>='A' && x<='Z') ? (x):(x-32)
 #include <stdio.h>
 #include <stdlib.h>

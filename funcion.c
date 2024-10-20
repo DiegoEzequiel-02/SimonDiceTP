@@ -167,18 +167,23 @@ void sortearJugadores(char** nombres, int cantJug) {
     }
 }
 
-size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp){
+size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp) {
     size_t realsize = size * nmemb;
     t_cola *tc = (t_cola *)userp;  // La cola se pasa a través de userp
 
+    // Crear un buffer temporal para copiar los datos entrantes
+    char buffer[realsize + 1];
+    memcpy(buffer, contents, realsize);
+    buffer[realsize] = '\0';  // Asegurarse de que sea una cadena válida
+
     // Usar strtok para separar los números por saltos de línea ('\n')
-    char *token = strtok((char *)contents, "\n");
+    char *token = strtok(buffer, "\n");
     while (token != NULL) {
         int numero = atoi(token);  // Convertir el número a entero
 
         // Agregar el número a la cola
         if (!agregarACola(tc, &numero, sizeof(int))) {
-            fprintf(stderr, "Error al agregar el número a la cola\n");
+            fprintf(stderr, "Error al agregar el numero a la cola\n");
         }
 
         token = strtok(NULL, "\n");  // Obtener el siguiente número
@@ -186,6 +191,7 @@ size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp){
 
     return realsize;
 }
+
 
 void menu(){
     char opc;
@@ -380,8 +386,8 @@ int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* c
 
                 // Retroceder la secuencia según las vidas gastadas
                 while ((*contParaRestar < vidasASacar) && (*cant - *contParaRestar) >= 0) {
-                    sacarDeCola(tc_aux,&aux,sizeof(char));  // Eliminar los dígitos incorrectos ingresados
-                    *contParaRestar = *contParaRestar + 1;
+                    sacarDeCola(tc_aux, &aux, sizeof(char));
+                    *contParaRestar += 1;
                 }
                 *vidas -= vidasASacar;  // Descontar las vidas
 
@@ -390,6 +396,8 @@ int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* c
                 fprintf(informe,"Gastó %d vidas, vidas actuales: %d\n",vidasASacar,*vidas);
 
                 printf("RECUERDE SOLO PONER LAS LETRAS PENDIENTES!!!\n");
+                Sleep(5000);
+                system("cls");
                 return -1;
             } else {
                 printf("No ha querido gastar vidas, se termina el juego para este jugador.\n");
@@ -475,8 +483,9 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
             }
 
             if(cant % 10 == 0){
-                printf("%d\n", cant);
                 generarSecuencia(&tc); //Si va por mas de 10 letras, se agregan otras 10 a la cola
+                traducirAColores(&tc,sizeof(char));
+                mostrarParcial(&tc,cant);
             }
         }
 
