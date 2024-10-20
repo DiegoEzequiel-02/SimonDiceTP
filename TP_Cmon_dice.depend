@@ -11,20 +11,14 @@
 	<stdlib.h>
 	<string.h>
 
-1728766620 source:c:\users\diego\documents\algoritmos\tp_cmon_dice\main.c
+1729460174 source:c:\users\diego\documents\algoritmos\tp_cmon_dice\main.c
 	<stdio.h>
 	<string.h>
 	<stdlib.h>
 	"funcion.h"
 
-1729458981 source:c:\users\diego\documents\algoritmos\tp_cmon_dice\funcion.c
+1729460369 source:c:\users\diego\documents\algoritmos\tp_cmon_dice\funcion.c
 	"funcion.h"
-	<stdio.h>
-	<windows.h>
-	<string.h>
-	<stdio.h>
-	<windows.h>
-	<string.h>
 
 1729450494 c:\users\diego\documents\algoritmos\tp_cmon_dice\funcion.h
 	<stdio.h>

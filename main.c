@@ -5,5 +5,7 @@
 
 int main() {
     menu();
+
+    printf("============== FIN DEL JUEGO | GRACIAS POR JUGAR! ==============\n");
     return 0;
 }

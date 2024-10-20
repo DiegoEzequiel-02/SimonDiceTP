@@ -97,7 +97,7 @@ int pedirNombres(){
     if(!pf){
         return 0;
     }
-    printf("Inserte jugadores (TERMINA INGRESANDO 'x'): \n");
+    printf("Inserte jugadores (TERMINA INGRESANDO '.'): \n");
 
     do {
     fflush(stdin);
@@ -108,11 +108,11 @@ int pedirNombres(){
     nombre[strcspn(nombre, "\n")] = '\0';
 
     // Si el nombre no es "x", lo almacena
-        if (strcmp(nombre, "x") != 0 && strcmp(nombre, "X") != 0 && strcmp(nombre,"") != 0) {
+        if (strcmp(nombre, ".") != 0 && strcmp(nombre,"") != 0) {
             fprintf(pf,"%s\n",nombre);
             contJug++;
         }
-    } while (strcmp(nombre, "x") != 0 && strcmp(nombre, "X") != 0);
+    } while (strcmp(nombre, ".") != 0);
     fclose(pf);
     return contJug;
 }
@@ -243,6 +243,8 @@ void menu(){
             printf("No se introdujeron jugadores\n");
         }
     }
+
+    remove("nombres.txt");
 }
 
 void generarSecuencia(t_cola* tc) {
@@ -321,13 +323,6 @@ void traducirAColores(t_cola *c, unsigned tam){
     }
 }
 
-#include <stdio.h>
-#include <windows.h>
-#include <string.h>
-
-#include <stdio.h>
-#include <windows.h>
-#include <string.h>
 
 void temporizadorDeEntrada(int timeout, char* entrada) {
     int timeElapsed = 0;
@@ -427,7 +422,7 @@ int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* c
     if(colaVacia(tc_aux)){
         printf("No puso nada de la secuencia, pierde 1 vida\n");
         *vidas -= 1;
-        Sleep(500);
+        Sleep(1000);
         return -1;
     }
     if (!compararColas(tc, tc_aux, *cant)) {
@@ -474,6 +469,7 @@ int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* c
                 return -2;
         }
     }else {  // Si la secuencia es correcta, vaciar la cola auxiliar y continuar
+        printf("SECUENCIA CORRECTA! Vamos a la siguiente...\n");
         vaciarCola(tc_aux);  // Limpiar la cola auxiliar
         if(gastoPrevio == 1){
             return 1; //gastó vidas para completarlo
@@ -554,6 +550,7 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
                 traducirAColores(&tc,sizeof(char));
                 mostrarParcial(&tc,cant);
             }
+            Sleep(3000);
         }
 
         cant = 0;  // Iniciar la secuencia con un dígito
