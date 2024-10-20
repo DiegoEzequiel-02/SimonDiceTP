@@ -488,6 +488,7 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
         fprintf(informe,"Total de puntos del jugador %s: %d\n", *(nombres+i),*(puntos+i));
         puntosXJugador = 0;
         segsParaCompletar = segsOrig;
+        gastaVidas = 0;
     }
 
     mostrarYGuardarGanadores(nombres,puntos,cantJug,informe);
