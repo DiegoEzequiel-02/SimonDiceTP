@@ -323,7 +323,6 @@ void traducirAColores(t_cola *c, unsigned tam){
     }
 }
 
-
 void temporizadorDeEntrada(int timeout, char* entrada) {
     int timeElapsed = 0;
     int estadoTeclas[256] = {0}; // Array para rastrear el estado de las teclas
@@ -367,14 +366,15 @@ void temporizadorDeEntrada(int timeout, char* entrada) {
             break; // Salir del bucle si se presiona ENTER
         }
 
-        Sleep(10); // Pausa corta para evitar carga alta en CPU
-        timeElapsed += 20; // Aumentar el tiempo transcurrido
+        Sleep(100); // Esperar 100 ms
+        timeElapsed += 100; // Incrementar el tiempo transcurrido
     }
 
     if (timeElapsed == timeout) {
         printf("\nNO HAY MAS TIEMPO\n");
     }
 
+    FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE)); //Limpia el "buffer" de las teclas ingresadas en esta función
     fflush(stdin);
 }
 
@@ -421,28 +421,29 @@ int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* c
     int vidasASacar;
     char aux;
 
-    if(colaVacia(tc_aux)){
+    fflush(stdin);
+    if(colaVacia(tc_aux) && gastoPrevio == 0){
         printf("No puso nada de la secuencia, pierde 1 vida\n");
         *vidas -= 1;
         Sleep(1000);
         return -1;
     }
+
     if (!compararColas(tc, tc_aux, *cant)) {
         if (*vidas > 0) {
                 do {
+                    FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE)); //Limpia el "buffer" de las teclas ingresadas en la función anterior
                     printf("Secuencia incorrecta\n");
                     printf("Tiene %d vidas, quiere gastar? (1 - SI | 0 - NO):", *vidas);
-
                     if (scanf("%d", &gastaVidas) != 1) { // Verificar si la entrada fue exitosa
                         printf("Entrada invalida. Por favor ingresa 1 o 0.\n");
-                        fflush(stdin);
                         gastaVidas = -1; // Para asegurarte de que la condición del bucle siga siendo verdadera
                     }
                 } while (gastaVidas != 1 && gastaVidas != 0);
 
             if (gastaVidas == 1) {
                 do {
-                    printf("Ingrese cuantas vidas quiere gastar (máximo %d): ", *vidas);
+                    printf("Ingrese cuantas vidas quiere gastar (maximo %d): ", *vidas);
                     scanf("%d", &vidasASacar);
                 } while ((vidasASacar > *vidas) && (vidasASacar > *cant));
 
@@ -463,6 +464,7 @@ int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* c
                 return -1;
             } else {
                 printf("No ha querido gastar vidas, se termina el juego para este jugador.\n");
+                Sleep(2000);
                 return -2;
             }
 
@@ -502,6 +504,7 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
 
     for (i = 0; i < cantJug; i++) {
         system("cls");
+         Sleep(3000);
         // Generar secuencia y agregar a la cola
         generarSecuencia(&tc);
         traducirAColores(&tc,sizeof(char));
@@ -535,7 +538,6 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
                 puntosXJugador += 3;  // No usó vidas, tres puntos
                 fprintf(informe,"Obtuvo 3 puntos por esta ronda\n");
                 cant++;
-                gastoPrevio = 0; //reiniciamos el marcador de gastos
                 cantParaRestar = 0;
                 segsParaCompletar++; //El tiempo aumenta a medida que avanzan las rondas
                 break;
@@ -544,16 +546,16 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
                 fprintf(informe,"Obtuvo 1 punto por esta ronda\n");
                 cant++;
                 segsParaCompletar++; //El tiempo aumenta a medida que avanzan las rondas
+                gastoPrevio = 0; //reiniciamos el marcador de gastos
                 break;
             }
 
             if(cant % 10 == 0){
                 generarSecuencia(&tc); //Si va por mas de 10 letras, se agregan otras 10 a la cola
                 traducirAColores(&tc,sizeof(char));
-                mostrarParcial(&tc,cant);
             }
+            Sleep(1200);
             fflush(stdin);
-            Sleep(3000);
         }
 
         cant = 0;  // Iniciar la secuencia con un dígito
@@ -634,6 +636,14 @@ int compararColas(t_cola *cola1, t_cola *cola2, int cant) {
         contador++;
     }
 
+    if (contador > cant) {
+        // Verificar si cola2 tiene nodos adicionales
+        if (nodo2 != NULL) {
+            return 0;  // Si cola2 tiene más nodos, no son iguales
+        }
+        return 1;  // Si ambos tienen la misma longitud hasta 'cant', son iguales
+    }
+
     // Si contador es menor que cant, ambas colas deben tener la misma longitud
     if (contador < cant && (nodo1 || nodo2)) {
         return 0;  // Si una cola es más larga que la otra, no son iguales
@@ -644,7 +654,7 @@ int compararColas(t_cola *cola1, t_cola *cola2, int cant) {
 }
 
 void mostrar(const void* a){
-    printf("%c\n",*(char*)a);
+    printf("%c ",*(char*)a);
 }
 
 void mostrarDeAUno(t_cola* c, int cant){
