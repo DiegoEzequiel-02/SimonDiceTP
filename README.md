@@ -18,7 +18,7 @@
 - El jugador o los jugadores que obtengan la mayor cantidad de puntos serán los ganadores.
 
 ### Instrucciones 
-1. Ingresar los nombres de los jugadores, para finalizar presione 'x'.
+1. Ingresar los nombres de los jugadores, para finalizar presione '.'.
 2. Elegir la dificultad (fácil, medio, difícil).
 3. Se mostrará el orden de los jugadores, decidido por sorteo.
 4. Antes de iniciar la partida, se mostrará la cantidad de vidas de cada jugador, el tiempo que tendrán para ver la secuencia y el tiempo que tendrán para ingresarla.
