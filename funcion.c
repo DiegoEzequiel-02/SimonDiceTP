@@ -1,14 +1,14 @@
 #include "funcion.h"
 
 void guardarConfiguracion (char dif){
+    int secuen;
+    int tiempo;
+    int vidas;
     FILE *pf = fopen("config.txt","wt");
     if (!pf) {
         printf("Error al abrir el archivo para escritura\n");
         return;
     }
-    int secuen;
-    int tiempo;
-    int vidas;
     switch(dif){
     case 'F':
         secuen = 10;
@@ -32,14 +32,29 @@ void guardarConfiguracion (char dif){
 }
 
 void leerConfiguraciones(int* vidas,int* segs,int* secuen){
+    char dif;
+    int elementosLeidos;
     FILE *pf = fopen("config.txt","rt");
     if(!pf){
         printf("Error al leer la configuracion\n");
         return;
     }
 
-    char dif;
-    fscanf(pf,"%c | %d | %d | %d",&dif,secuen,segs,vidas);
+    elementosLeidos = fscanf(pf,"%c | %d | %d | %d",&dif,secuen,segs,vidas);
+    if (elementosLeidos != 4) { // Si no se leyeron los 4 elementos, el formato es incorrecto
+        printf("Error: El archivo de configuración tiene un formato incorrecto.\n");
+        fclose(pf);
+        return;
+    }
+    if(*vidas > 5){
+        *vidas = 5;
+    }
+    if(*secuen > 20){
+        *secuen = 20;
+    }
+    if(*segs > 20){
+        *segs = 20;
+    }
     printf("Nivel: %c\n",dif);
     printf("Segundos de secuencia completa: %d\n",*secuen);
     printf("Tiempo para contestar: %d\n",*segs);
@@ -145,7 +160,7 @@ void dificultad(char* dif){
         printf("D - DIFICIL\n");
         printf("Ingrese dificultad: ");
         scanf(" %c", dif);
-        *dif = toupper(*dif);
+        *dif = AMAYOR(*dif);
     } while (*dif != 'F' && *dif != 'M' && *dif != 'D');
 }
 
@@ -171,8 +186,8 @@ size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp) {
     size_t realsize = size * nmemb;
     t_cola *tc = (t_cola *)userp;  // La cola se pasa a través de userp
 
-    // Crear un buffer temporal para copiar los datos entrantes
     char buffer[realsize + 1];
+    // Crear un buffer temporal para copiar los datos entrantes
     memcpy(buffer, contents, realsize);
     buffer[realsize] = '\0';  // Asegurarse de que sea una cadena válida
 
@@ -201,6 +216,8 @@ void menu(){
     int segs;
     int secuen;
     int listo;
+    char** nombres;
+    int* puntos;
     do{
         fflush(stdin);
         printf("[A] Jugar\n");
@@ -214,8 +231,8 @@ void menu(){
     if(opc == 'A'){
         filas = pedirNombres();
         if(filas != 0){
-            char** nombres = (char**)crearMatriz(filas, 20, sizeof(char));
-            int* puntos = (int*)malloc(sizeof(int));
+            nombres = (char**)crearMatriz(filas, 20, sizeof(char));
+            puntos = (int*)malloc(sizeof(int));
             vaciarVector(puntos,filas);
 
             guardarNombres(nombres);
@@ -236,9 +253,7 @@ void menu(){
 
            iniciarJuego(nombres,filas,puntos,segs,secuen,vidas);
 
-            free(nombres);  // Liberar la memoria de la matriz de punteros
-
-
+           free(nombres);  // Liberar la memoria de la matriz de punteros
         }else{
             printf("No se introdujeron jugadores\n");
         }
@@ -538,13 +553,13 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
                 fprintf(informe,"Obtuvo 3 puntos por esta ronda\n");
                 cant++;
                 cantParaRestar = 0;
-                segsParaCompletar++; //El tiempo aumenta a medida que avanzan las rondas
+                //segsParaCompletar++; //El tiempo aumenta a medida que avanzan las rondas
                 break;
             case 1:
                 puntosXJugador += 1;  // Usó vidas, solo un punto
                 fprintf(informe,"Obtuvo 1 punto por esta ronda\n");
                 cant++;
-                segsParaCompletar++; //El tiempo aumenta a medida que avanzan las rondas
+               // segsParaCompletar++; //El tiempo aumenta a medida que avanzan las rondas
                 gastoPrevio = 0; //reiniciamos el marcador de gastos
                 break;
             }
@@ -663,6 +678,7 @@ void mostrarDeAUno(t_cola* c, int cant, int segsSecuencia){
     while(actual != NULL && cont <= cant){
         printf("(%d) ", cont+1);
         mostrar(actual->info);
+        barraDeProgreso(cont,cant);
         Sleep(tiempoPorItem * 1000); //tiempo correspondiente a cada item (ej, secuencia de 10 segundos con 2 elementos, 5 segs para cada uno)
         system("cls");
         actual = actual->sig_nodo;  // Mover el puntero auxiliar
@@ -681,4 +697,21 @@ void mostrarParcial(t_cola* c, int cant){
         cont++;
     }
     printf("\n");
+}
+
+void barraDeProgreso(int cant, int total){
+    int i;
+    int max = 30;
+    int progreso = ((cant+1) * max) / (total+1); // Calcula la cantidad de caracteres llenos
+
+    printf("\nCARGANDO...");
+    printf("["); // Empieza la barra de progreso
+    for (i = 0; i < max; i++) {
+        if (i < progreso) {
+            printf("#"); // Parte completada
+        } else {
+            printf(" "); // Parte pendiente
+        }
+    }
+    printf("]");
 }
