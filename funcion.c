@@ -382,8 +382,7 @@ void juegosXTurno(t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaC
     char ingresa[50] = "";  // Inicializa la cadena como vacía
     char* ptr;
     printf("Secuencia actual (mostrar hasta el digito %d):\n", cant + 1);
-    mostrarDeAUno(orig, cant);
-    Sleep(secuen * 1000);  // Mostrar secuencia por un tiempo determinado
+    mostrarDeAUno(orig, cant, secuen);
     system("cls");
 
     guardarColaEnArchivo(orig, informe, cant);
@@ -511,7 +510,7 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
         printf("=========TURNO DEL JUGADOR: %s=========\n", *(nombres + i));
         puntosXJugador = 0;  // Inicializar los puntos del jugador
         fprintf(informe,"Jugador: %s\n",*(nombres + i));
-        Sleep(1200);
+        Sleep(1000);
         while (vidas >= 0 && gastaVidas != -2) {
             system("cls");
             fprintf(informe,"\nSecuencia actual de la ronda %d: ",cant+1);
@@ -644,12 +643,12 @@ int compararColas(t_cola *cola1, t_cola *cola2, int cant) {
         return 1;  // Si ambos tienen la misma longitud hasta 'cant', son iguales
     }
 
-    // Si contador es menor que cant, ambas colas deben tener la misma longitud
+    // Si el contador es menor que cant, tienen la misma longitud
     if (contador < cant && (nodo1 || nodo2)) {
         return 0;  // Si una cola es más larga que la otra, no son iguales
     }
 
-    // Si todo fue igual y se recorrieron 'cant' elementos, las colas son iguales
+    // Si todo fue igual y se recorrieron todos los elementos, las colas son iguales
     return 1;
 }
 
@@ -657,14 +656,14 @@ void mostrar(const void* a){
     printf("%c ",*(char*)a);
 }
 
-void mostrarDeAUno(t_cola* c, int cant){
+void mostrarDeAUno(t_cola* c, int cant, int segsSecuencia){
     int cont = 0;
     t_nodo* actual = c->prim;  // Usar un puntero auxiliar en lugar de modificar 'prim'
-
+    float tiempoPorItem = segsSecuencia/(cant+1);
     while(actual != NULL && cont <= cant){
         printf("(%d) ", cont+1);
         mostrar(actual->info);
-        Sleep(1500);
+        Sleep(tiempoPorItem * 1000); //tiempo correspondiente a cada item (ej, secuencia de 10 segundos con 2 elementos, 5 segs para cada uno)
         system("cls");
         actual = actual->sig_nodo;  // Mover el puntero auxiliar
         cont++;

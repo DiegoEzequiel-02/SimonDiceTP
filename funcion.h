@@ -22,7 +22,7 @@ void dificultad(char* dif);
 void sortearJugadores(char** nombres, int cantJug);
 void menu();
 void iniciarJuego(char** nombres, int cantJug,int* puntos, int segsParaCompletar, int secuen, int vidas);
-void mostrarDeAUno(t_cola* c, int cant);
+void mostrarDeAUno(t_cola* c, int cant, int segsSecuencia);
 int compararColas(t_cola* cola1, t_cola* cola2, int cant);
 void* buscarMayor (void* vec, size_t ce, size_t tam,int cmp(const void* a, const void* b));
 void guardarColaEnArchivo(t_cola* cola, FILE* informe, int cant);
