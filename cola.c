@@ -46,11 +46,11 @@ int colaLlena(const t_cola* c, unsigned tam){
 
 int sacarElemento(t_cola* c, void* d, unsigned tam){
     t_nodo* aux;
-    if(c->prim == NULL) // Recordemos ColaVacia
+    if(c->prim == NULL)
         return 0;
-    // Tenemos que sacar el PRIMER elemento
+
     aux = c->prim;
-    // Nuestro nuevo primero es el siguiente de nuestro primero
+
     c->prim = c->prim->sig_nodo;
     if(c->prim == NULL) // Si luego de esto no queda cola...
         c->ult = NULL;
@@ -78,7 +78,7 @@ void vaciarCola(t_cola* c) {
 
 int sacarDeCola(t_cola* cola, void* dato, unsigned tam) {
     if (!cola->prim) {  // Si la cola está vacía
-        return 0;  // No hay elementos para sacar
+        return 0;
     }
 
     t_nodo* actual = cola->prim;
@@ -100,8 +100,8 @@ int sacarDeCola(t_cola* cola, void* dato, unsigned tam) {
     }
 
     // Ahora 'actual' es el último nodo y 'anterior' es el penúltimo
-    memcpy(dato, actual->info, tam);  // Copiar la info del último nodo
-    free(actual);  // Liberar el último nodo
+    memcpy(dato, actual->info, tam);
+    free(actual);
 
     anterior->sig_nodo = NULL;  // El penúltimo nodo es ahora el último
     cola->ult = anterior;  // Actualizar el puntero 'ult' al nuevo último nodo

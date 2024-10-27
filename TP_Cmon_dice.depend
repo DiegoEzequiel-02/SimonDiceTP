@@ -17,21 +17,19 @@
 	<stdlib.h>
 	"funcion.h"
 
-1730029597 source:c:\users\diego\documents\algoritmos\tp_cmon_dice\funcion.c
+1730041188 source:c:\users\diego\documents\algoritmos\tp_cmon_dice\funcion.c
 	"funcion.h"
 
-1730029719 c:\users\diego\documents\algoritmos\tp_cmon_dice\funcion.h
+1730041254 c:\users\diego\documents\algoritmos\tp_cmon_dice\funcion.h
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
-	<ctype.h>
 	<time.h>
 	<curl/curl.h>
-	<conio.h>
 	<windows.h>
 	"cola.h"
 
-1729355581 source:c:\users\diego\documents\algoritmos\tp_cmon_dice\cola.c
+1730040978 source:c:\users\diego\documents\algoritmos\tp_cmon_dice\cola.c
 	"cola.h"
 
 1728838525 c:\users\diego\documents\algoritmos\tp_cmon_dice\cola.h

@@ -6,7 +6,7 @@ void guardarConfiguracion (char dif){
     int vidas;
     FILE *pf = fopen("config.txt","wt");
     if (!pf) {
-        printf("Error al abrir el archivo para escritura\n");
+        printf("Error al crear el archivo de configuracion para escritura.\n");
         return;
     }
     switch(dif){
@@ -36,13 +36,13 @@ void leerConfiguraciones(int* vidas,int* segs,int* secuen){
     int elementosLeidos;
     FILE *pf = fopen("config.txt","rt");
     if(!pf){
-        printf("Error al leer la configuracion\n");
+        printf("Error al leer la configuracion.\n");
         return;
     }
 
     elementosLeidos = fscanf(pf,"%c | %d | %d | %d",&dif,secuen,segs,vidas);
     if (elementosLeidos != 4) { // Si no se leyeron los 4 elementos, el formato es incorrecto
-        printf("Error: El archivo de configuración tiene un formato incorrecto.\n");
+        printf("Error: El archivo de configuracion tiene un formato incorrecto.\n");
         fclose(pf);
         return;
     }
@@ -109,6 +109,7 @@ int pedirNombres(){
     char nombre[MAX_NOMBRE];
     FILE* pf = fopen("nombres.txt","wt");
     if(!pf){
+        printf("No se puede crear jugadores en este momento.\n");
         return 0;
     }
     printf("Inserte jugadores (MAXIMO 20 CARACTERES | TERMINA INGRESANDO '.'): \n");
@@ -118,10 +119,10 @@ int pedirNombres(){
         printf("Ingrese nombre del jugador %d: ", contJug + 1);
         fgets(nombre, MAX_NOMBRE, stdin);
 
-        // Elimina el salto de línea que fgets almacena
+        // Elimina el salto de línea que fgets guarda
         nombre[strcspn(nombre, "\n")] = '\0';
 
-        // Si el nombre no es "x", lo almacena
+        // Si el nombre no es ".", lo guarda
         if (strcmp(nombre, ".") != 0 && strcmp(nombre,"") != 0){
             fprintf(pf,"%s\n",nombre);
             contJug++;
@@ -133,12 +134,10 @@ int pedirNombres(){
 
 int my_strlen(char* cad){
     int cont = 0;
-
     while(*cad != '\0'){
         cont++;
         cad++;
     }
-
     return cont;
 }
 
@@ -147,11 +146,12 @@ void guardarNombres(char** nombres) {
     char nombre[MAX_NOMBRE];
     int i = 0;
     if (!pf) {
+        printf("No se pudo guardar jugadores en este momento.\n");
         return;
     }
     while (fgets(nombre, sizeof(nombre), pf)) {
-        nombre[strcspn(nombre, "\n")] = '\0';
-        *(nombres + i) = (char*)malloc((my_strlen(nombre) + 1) * sizeof(char));
+        nombre[strcspn(nombre, "\n")] = '\0';  // Elimina el salto de línea que fgets guarda
+        *(nombres + i) = (char*)malloc((my_strlen(nombre) + 1) * sizeof(char)); //Aseguramos que se guarde el nombre con el tamaño que necesita
         strcpy(*(nombres + i), nombre);
         i++;
     }
@@ -263,7 +263,8 @@ void menu(){
 
            iniciarJuego(nombres,filas,puntos,segs,secuen,vidas);
 
-           free(nombres);  // Liberar la memoria de la matriz de punteros
+           free(nombres);
+           free(puntos);
         }else{
             printf("No se introdujeron jugadores\n");
         }
@@ -508,8 +509,7 @@ int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* c
 void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompletar, int secuen, int vidas) {
     t_cola tc;
     t_cola tc_aux;
-    crearCola(&tc);
-    crearCola(&tc_aux);
+
     int i,cant = 0,puntosXJugador = 0;
     int vidasOriginal = vidas;
     int gastaVidas;
@@ -519,10 +519,18 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
 
     char txt_informe[31] = "informe_texto_";
     char fechaActual[20];
+
+    FILE *informe = fopen(fechaActual,"wt");
+
+    crearCola(&tc);
+    crearCola(&tc_aux);
     crearFecha(fechaActual);
     strcat(txt_informe,fechaActual);
 
-    FILE *informe = fopen(fechaActual,"wt");
+    if(!informe){
+        printf("Error al crear informe.\n");
+        return;
+    }
 
     for (i = 0; i < cantJug; i++) {
         system("cls");
