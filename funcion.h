@@ -1,6 +1,7 @@
 #ifndef FUNCION_H_INCLUDED
 #define FUNCION_H_INCLUDED
 #define AMAYOR(x)((x>='A' && x<='Z') ? (x):(x-32))
+#define MAX_NOMBRE 21
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,4 +30,5 @@ void guardarColaEnArchivo(t_cola* cola, FILE* informe, int cant);
 void mostrarYGuardarGanadores(char** nombres, int puntos[],int cantJug, FILE* archivo);
 void mostrarParcial(t_cola* c, int cant);
 void barraDeProgreso(int cant, int total);
+int my_strlen(char* cad);
 #endif // FUNCION_H_INCLUDED

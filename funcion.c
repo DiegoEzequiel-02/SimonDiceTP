@@ -106,22 +106,22 @@ void mostrarNombres(char** nombres, int cant){
 
 int pedirNombres(){
     int contJug = 0;
-    char nombre[20];
+    char nombre[MAX_NOMBRE];
     FILE* pf = fopen("nombres.txt","wt");
     if(!pf){
         return 0;
     }
-    printf("Inserte jugadores (TERMINA INGRESANDO '.'): \n");
+    printf("Inserte jugadores (MAXIMO 20 CARACTERES | TERMINA INGRESANDO '.'): \n");
 
     do {
-    fflush(stdin);
-    printf("Ingrese nombre del jugador %d: ", contJug + 1);
-    fgets(nombre, 20, stdin);
+        fflush(stdin);
+        printf("Ingrese nombre del jugador %d: ", contJug + 1);
+        fgets(nombre, MAX_NOMBRE, stdin);
 
-    // Elimina el salto de línea que fgets almacena
-    nombre[strcspn(nombre, "\n")] = '\0';
+        // Elimina el salto de línea que fgets almacena
+        nombre[strcspn(nombre, "\n")] = '\0';
 
-    // Si el nombre no es "x", lo almacena
+        // Si el nombre no es "x", lo almacena
         if (strcmp(nombre, ".") != 0 && strcmp(nombre,"") != 0){
             fprintf(pf,"%s\n",nombre);
             contJug++;
@@ -131,16 +131,27 @@ int pedirNombres(){
     return contJug;
 }
 
+int my_strlen(char* cad){
+    int cont = 0;
+
+    while(*cad != '\0'){
+        cont++;
+        cad++;
+    }
+
+    return cont;
+}
+
 void guardarNombres(char** nombres) {
     FILE* pf = fopen("nombres.txt", "rt");
-    char nombre[20];
+    char nombre[MAX_NOMBRE];
     int i = 0;
     if (!pf) {
         return;
     }
     while (fgets(nombre, sizeof(nombre), pf)) {
-        // Eliminar el salto de línea que fgets almacena
         nombre[strcspn(nombre, "\n")] = '\0';
+        *(nombres + i) = (char*)malloc((my_strlen(nombre) + 1) * sizeof(char));
         strcpy(*(nombres + i), nombre);
         i++;
     }
@@ -148,7 +159,6 @@ void guardarNombres(char** nombres) {
     fclose(pf);
     remove("nombres.txt");
 }
-
 
 void dificultad(char* dif){
     // Bucle para seleccionar la dificultad
@@ -230,7 +240,7 @@ void menu(){
     if(opc == 'A'){
         filas = pedirNombres();
         if(filas != 0){
-            nombres = (char**)crearMatriz(filas, 20, sizeof(char));
+            nombres = (char**)crearMatriz(filas, MAX_NOMBRE, sizeof(char));
             puntos = (int*)malloc(sizeof(int));
             vaciarVector(puntos,filas);
 
@@ -246,6 +256,7 @@ void menu(){
             mostrarNombres(nombres,filas);
 
             do{
+                fflush(stdin);
                 printf("Listo? INGRESE 1: ");
                 scanf("%d",&listo);
             }while(listo != 1);
@@ -257,8 +268,6 @@ void menu(){
             printf("No se introdujeron jugadores\n");
         }
     }
-
-    remove("nombres.txt");
 }
 
 void generarSecuencia(t_cola* tc) {
@@ -427,8 +436,6 @@ void juegosXTurno(t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaC
     guardarColaEnArchivo(aux, informe, cant);
 }
 
-
-
 int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* contParaRestar, FILE *informe, int gastoPrevio){
     int gastaVidas;
     int vidasASacar;
@@ -445,6 +452,7 @@ int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* c
     if (!compararColas(tc, tc_aux, *cant)) {
         if (*vidas > 0) {
                 do {
+                    fflush(stdin);
                     FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE)); //Limpia el "buffer" de las teclas ingresadas en la función anterior
                     printf("Secuencia incorrecta\n");
                     printf("Tiene %d vidas, quiere gastar? (1 - SI | 0 - NO):", *vidas);
@@ -456,6 +464,7 @@ int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* c
 
             if (gastaVidas == 1) {
                 do {
+                    fflush(stdin);
                     printf("Ingrese cuantas vidas quiere gastar (maximo %d): ", *vidas);
                     scanf("%d", &vidasASacar);
                 } while ((vidasASacar > *vidas) && (vidasASacar > *cant));
