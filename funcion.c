@@ -358,24 +358,55 @@ int temporizadorDeEntrada(int timeout,t_cola* cola) {
     int estadoTeclas[256] = {0}; // Array para rastrear el estado de las teclas
     int termino;
     while (timeElapsed < timeout) {
-        for (int i = 'A'; i <= 'Z'; i++) { // Solo letras mayúsculas
-            // Verificar si la tecla está presionada
-            if (GetAsyncKeyState(i) & 0x8000) {
-                // Solo procesar si la tecla no ha sido procesada previamente
-                if (estadoTeclas[i] == 0 && esPermitido((char)i)) {
-                    char letra = (char)i;
-                    if (!agregarACola(cola, &letra, sizeof(char))) {
-                        printf("Error al agregar a la cola\n");
-                        return -1;
-                    }
-                    printf("%c ", letra);
-                    estadoTeclas[i] = 1;
-                }
-            } else {
-                // Restablecer el estado cuando la tecla no está presionada
-                estadoTeclas[i] = 0;
+        // Revisar solo las teclas especificadas
+        if ((GetAsyncKeyState('A') & 0x8000) && estadoTeclas['A'] == 0) {
+            char letra = 'A';
+            if (!agregarACola(cola, &letra, sizeof(char))) {
+                printf("Error al agregar a la cola\n");
+                return -1;
             }
+            printf("%c ", letra);
+            estadoTeclas['A'] = 1;
+        } else {
+            estadoTeclas['A'] = 0;
         }
+
+        if ((GetAsyncKeyState('R') & 0x8000) && estadoTeclas['R'] == 0) {
+            char letra = 'R';
+            if (!agregarACola(cola, &letra, sizeof(char))) {
+                printf("Error al agregar a la cola\n");
+                return -1;
+            }
+            printf("%c ", letra);
+            estadoTeclas['R'] = 1;
+        } else {
+            estadoTeclas['R'] = 0;
+        }
+
+        if ((GetAsyncKeyState('V') & 0x8000) && estadoTeclas['V'] == 0) {
+            char letra = 'V';
+            if (!agregarACola(cola, &letra, sizeof(char))) {
+                printf("Error al agregar a la cola\n");
+                return -1;
+            }
+            printf("%c ", letra);
+            estadoTeclas['V'] = 1;
+        } else {
+            estadoTeclas['V'] = 0;
+        }
+
+        if ((GetAsyncKeyState('M') & 0x8000) && estadoTeclas['M'] == 0) {
+            char letra = 'M';
+            if (!agregarACola(cola, &letra, sizeof(char))) {
+                printf("Error al agregar a la cola\n");
+                return -1;
+            }
+            printf("%c ", letra);
+            estadoTeclas['M'] = 1;
+        } else {
+            estadoTeclas['M'] = 0;
+        }
+
         // Ingresar/confirmar
         if (GetAsyncKeyState(VK_RETURN) & 0x8000) {
             termino = 0;
@@ -434,7 +465,7 @@ void juegosXTurno(t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaC
 
     printf("Ingrese secuencia (tiene %d segundos): ", segsParaCompletar);
     fintiempo = temporizadorDeEntrada(segsParaCompletar * 1000,aux); // Pasar el buffer de entrada
-    do { //interrumpieron el juego para volver atrás
+    while(fintiempo == 1) { //interrumpieron el juego para volver atrás
         FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE)); //Limpia el "buffer" de las teclas ingresadas anteriormente
         cantletras = contadorDeNodos(aux);
         system("cls");
@@ -453,7 +484,7 @@ void juegosXTurno(t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaC
         }
         printf("Ingrese secuencia (tiene %d segundos): ", segsParaCompletar);
         fintiempo = temporizadorDeEntrada(segsParaCompletar * 1000,aux);
-    }while(fintiempo == 1);
+    }
 
     fflush(stdin);
 
