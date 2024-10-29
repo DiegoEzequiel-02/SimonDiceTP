@@ -29,6 +29,7 @@ void mostrarYGuardarGanadores(char** nombres, int puntos[],int cantJug, FILE* ar
 void mostrarParcial(t_cola* c, int cant);
 void barraDeProgreso(int cant, int total);
 int my_strlen(char* cad);
-void temporizadorDeEntrada(int timeout,t_cola* cola);
+int temporizadorDeEntrada(int timeout,t_cola* cola);
 void recorrerIngresado(t_cola* cola);
+void juegosXTurno(t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaCompletar, FILE* informe,int* vidas) ;
 #endif // FUNCION_H_INCLUDED

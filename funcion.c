@@ -350,13 +350,13 @@ void traducirAColores(t_cola *c, unsigned tam){
 }
 
 int esPermitido(char c) {
-    return (c == 'A' || c == 'M' || c == 'R' || c == 'V' || c == 'H'); //La H es por 'ayuda'
+    return (c == 'A' || c == 'M' || c == 'R' || c == 'V');
 }
 
-void temporizadorDeEntrada(int timeout,t_cola* cola) {
+int temporizadorDeEntrada(int timeout,t_cola* cola) {
     int timeElapsed = 0;
     int estadoTeclas[256] = {0}; // Array para rastrear el estado de las teclas
-
+    int termino;
     while (timeElapsed < timeout) {
         for (int i = 'A'; i <= 'Z'; i++) { // Solo letras mayúsculas
             // Verificar si la tecla está presionada
@@ -366,7 +366,7 @@ void temporizadorDeEntrada(int timeout,t_cola* cola) {
                     char letra = (char)i;
                     if (!agregarACola(cola, &letra, sizeof(char))) {
                         printf("Error al agregar a la cola\n");
-                        return;
+                        return -1;
                     }
                     printf("%c ", letra);
                     estadoTeclas[i] = 1;
@@ -376,10 +376,15 @@ void temporizadorDeEntrada(int timeout,t_cola* cola) {
                 estadoTeclas[i] = 0;
             }
         }
-
         // Ingresar/confirmar
         if (GetAsyncKeyState(VK_RETURN) & 0x8000) {
+            termino = 0;
             break;
+        }
+
+        if (GetAsyncKeyState('H') & 0x8000) {
+            timeElapsed = timeout;
+            return 1;
         }
 
         Sleep(100); // Esperar 100 ms
@@ -392,6 +397,7 @@ void temporizadorDeEntrada(int timeout,t_cola* cola) {
 
     FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE)); //Limpia el "buffer" de las teclas ingresadas en esta función
     fflush(stdin);
+    return termino;
 }
 
 void recorrerIngresado(t_cola* cola){
@@ -404,7 +410,21 @@ void recorrerIngresado(t_cola* cola){
     printf("\n");
 }
 
-void juegosXTurno(t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaCompletar, FILE* informe) {
+int contadorDeNodos(t_cola* cola){
+    t_nodo* aux = cola->prim;
+    int cont = 0;
+    while(aux != NULL){
+        cont++;
+        aux = aux->sig_nodo;
+    }
+    return cont;
+}
+
+void juegosXTurno(t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaCompletar, FILE* informe,int* vidas) {
+    int fintiempo;
+    int vidasASacar;
+    int cantletras = 0;
+    char c_aux;
     printf("Secuencia actual:\n");
     mostrarDeAUno(orig, cant, secuen);
     system("cls");
@@ -413,7 +433,28 @@ void juegosXTurno(t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaC
     fflush(stdin);
 
     printf("Ingrese secuencia (tiene %d segundos): ", segsParaCompletar);
-    temporizadorDeEntrada(segsParaCompletar * 1000,aux); // Pasar el buffer de entrada
+    fintiempo = temporizadorDeEntrada(segsParaCompletar * 1000,aux); // Pasar el buffer de entrada
+    do { //interrumpieron el juego para volver atrás
+        FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE)); //Limpia el "buffer" de las teclas ingresadas anteriormente
+        cantletras = contadorDeNodos(aux);
+        system("cls");
+        do{
+            fflush(stdin);
+            printf("Cuantos pasos desea volver? (maximo %d): ",cantletras);
+            scanf("%d",&vidasASacar);
+        }while(vidasASacar < 0 || vidasASacar > (cantletras+1) || (cantletras - vidasASacar) < 0);
+        while(vidasASacar > 0){
+            sacarDeCola(aux,&c_aux,sizeof(char));
+            *vidas-=1;
+            vidasASacar--;
+        }
+        if(colaVacia(aux)){
+            mostrarDeAUno(orig,cant,secuen);
+        }
+        printf("Ingrese secuencia (tiene %d segundos): ", segsParaCompletar);
+        fintiempo = temporizadorDeEntrada(segsParaCompletar * 1000,aux);
+    }while(fintiempo == 1);
+
     fflush(stdin);
 
     fprintf(informe, "Ingreso: ");
@@ -539,7 +580,7 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
                 mostrarParcial(&tc_aux,cant - cantParaRestar); //Mostramos como quedó la secuencia despues de perder vidas
             }
 
-            juegosXTurno(&tc,&tc_aux,cant,secuen,segsParaCompletar,informe);
+            juegosXTurno(&tc,&tc_aux,cant,secuen,segsParaCompletar,informe,&vidas);
             fflush(stdin);
             gastaVidas = verificarSecuencia(&tc,&tc_aux,&cant,&vidas,&cantParaRestar, informe, gastoPrevio);
 
