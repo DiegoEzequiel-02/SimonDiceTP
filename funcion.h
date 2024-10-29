@@ -31,5 +31,6 @@ void barraDeProgreso(int cant, int total);
 int my_strlen(char* cad);
 int temporizadorDeEntrada(int timeout,t_cola* cola);
 void recorrerIngresado(t_cola* cola);
-void juegosXTurno(t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaCompletar, FILE* informe,int* vidas) ;
+void juegosXTurno(t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaCompletar, FILE* informe,int* vidas);
+int contadorDeNodos(t_cola* cola);
 #endif // FUNCION_H_INCLUDED

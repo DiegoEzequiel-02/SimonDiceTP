@@ -219,7 +219,6 @@ size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp) {
     return realsize;
 }
 
-
 void menu(){
     char opc;
     int filas = 0;  // Número máximo de jugadores
@@ -347,10 +346,6 @@ void traducirAColores(t_cola *c, unsigned tam){
         }
         aux = aux->sig_nodo;  // Avanza al siguiente nodo
     }
-}
-
-int esPermitido(char c) {
-    return (c == 'A' || c == 'M' || c == 'R' || c == 'V');
 }
 
 int temporizadorDeEntrada(int timeout,t_cola* cola) {
