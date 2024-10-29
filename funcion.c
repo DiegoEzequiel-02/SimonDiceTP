@@ -349,41 +349,31 @@ void traducirAColores(t_cola *c, unsigned tam){
     }
 }
 
-void temporizadorDeEntrada(int timeout, char* entrada) {
+int esPermitido(char c) {
+    return (c == 'A' || c == 'M' || c == 'R' || c == 'V' || c == 'H'); //La H es por 'ayuda'
+}
+
+void temporizadorDeEntrada(int timeout,t_cola* cola) {
     int timeElapsed = 0;
     int estadoTeclas[256] = {0}; // Array para rastrear el estado de las teclas
-    char* ptr = entrada; // Puntero que apunta al final de la cadena
-
-    // Inicializar la cadena como vacía
-    memset(entrada, 0, 50); // se asegura de que la cadena esté vacía al inicio
 
     while (timeElapsed < timeout) {
         for (int i = 'A'; i <= 'Z'; i++) { // Solo letras mayúsculas
             // Verificar si la tecla está presionada
             if (GetAsyncKeyState(i) & 0x8000) {
                 // Solo procesar si la tecla no ha sido procesada previamente
-                if (estadoTeclas[i] == 0) {
-                    // Agregar la letra a la cadena de entrada
-                    if (ptr < entrada + 49) { // Asegurarse de no exceder el tamaño del buffer
-                        *ptr = (char)i; // Guardar la letra presionada
-                        printf("%c", *ptr);
-                        ptr++; // Mover el puntero al siguiente espacio
-                        *ptr = '\0'; // terminar la cadena
+                if (estadoTeclas[i] == 0 && esPermitido((char)i)) {
+                    char letra = (char)i;
+                    if (!agregarACola(cola, &letra, sizeof(char))) {
+                        printf("Error al agregar a la cola\n");
+                        return;
                     }
-                    estadoTeclas[i] = 1; // Marcar la tecla como procesada
+                    printf("%c ", letra);
+                    estadoTeclas[i] = 1;
                 }
             } else {
                 // Restablecer el estado cuando la tecla no está presionada
                 estadoTeclas[i] = 0;
-            }
-        }
-
-        // Para borrar
-        if (GetAsyncKeyState(VK_BACK) & 0x8000) {
-            if (ptr > entrada) { // Verifica si hay caracteres para borrar
-                ptr--; // Mover el puntero hacia atrás
-                *ptr = '\0'; // Null-terminar la cadena después de borrar
-                printf("\b \b"); // Borrar el carácter en la consola
             }
         }
 
@@ -404,9 +394,17 @@ void temporizadorDeEntrada(int timeout, char* entrada) {
     fflush(stdin);
 }
 
+void recorrerIngresado(t_cola* cola){
+    t_nodo* aux = cola->prim;
+
+    while(aux != NULL){
+        printf("%c ", *(char*)aux->info);
+        aux = aux->sig_nodo;
+    }
+    printf("\n");
+}
+
 void juegosXTurno(t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaCompletar, FILE* informe) {
-    char ingresa[50] = "";  // Inicializa la cadena como vacía
-    char* ptr;
     printf("Secuencia actual:\n");
     mostrarDeAUno(orig, cant, secuen);
     system("cls");
@@ -414,26 +412,16 @@ void juegosXTurno(t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaC
     guardarColaEnArchivo(orig, informe, cant);
     fflush(stdin);
 
-    printf("Ingrese secuencia sin espacios (tiene %d segundos): ", segsParaCompletar);
-    temporizadorDeEntrada(segsParaCompletar * 1000, ingresa); // Pasar el buffer de entrada
+    printf("Ingrese secuencia (tiene %d segundos): ", segsParaCompletar);
+    temporizadorDeEntrada(segsParaCompletar * 1000,aux); // Pasar el buffer de entrada
     fflush(stdin);
 
     fprintf(informe, "Ingreso: ");
 
-    printf("\nHas ingresado: %s\n", ingresa);
-    Sleep(500);
+    printf("\nHas ingresado: \n");
+    recorrerIngresado(aux);
 
-    // Verifica si se ha ingresado alguna secuencia
-    if (strcmp(ingresa, "") == 0) {
-        vaciarCola(aux); // Vacía la cola si no se ingresó nada
-    } else {
-        ptr = ingresa;  // Usa la cadena ingresada
-        while (*ptr != '\0') {
-            *ptr = AMAYOR(*ptr);
-            agregarACola(aux, ptr, sizeof(char));
-            ptr++;
-        }
-    }
+    Sleep(500);
 
     fflush(stdin);
     guardarColaEnArchivo(aux, informe, cant);
@@ -645,7 +633,6 @@ void guardarColaEnArchivo(t_cola* cola, FILE* informe, int cant) {
         actual = actual->sig_nodo;
         cont++;
     }
-
     fprintf(informe, "\n");  // Salto de línea al final
 }
 
