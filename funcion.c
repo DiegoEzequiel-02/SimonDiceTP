@@ -175,13 +175,16 @@ void dificultad(char* dif){
 
 void sortearJugadores(char** nombres, int cantJug) {
     char* aux;
-    int cant = 0;
+    int cant;
     char** nombPtr = nombres;
+    int pos;
+
+    cant = 0;
     // Inicializa el generador de números aleatorios
     srand(time(NULL));
 
     while (cant < cantJug) {
-        int pos = rand() % cantJug;
+        pos = rand() % cantJug;
 
         aux = *(nombPtr + cant);
         *(nombPtr + cant) = *(nombPtr + pos);
@@ -200,7 +203,7 @@ size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp) {
     memcpy(buffer, contents, realsize);
     buffer[realsize] = '\0';  // Asegurarse de que sea una cadena válida
 
-    // Usar strtok para separar los números por saltos de línea ('\n')
+    // Usar strtok para separar los números por saltos de línea
     char *token = strtok(buffer, "\n");
     while (token != NULL) {
         int numero = atoi(token);  // Convertir el número a entero
@@ -264,7 +267,6 @@ void menu(){
            iniciarJuego(nombres,filas,puntos,segs,secuen,vidas);
 
            free(nombres);
-           free(puntos);
         }else{
             printf("No se introdujeron jugadores\n");
         }
@@ -353,7 +355,7 @@ void temporizadorDeEntrada(int timeout, char* entrada) {
     char* ptr = entrada; // Puntero que apunta al final de la cadena
 
     // Inicializar la cadena como vacía
-    memset(entrada, 0, 50); // Asegúrate de que la cadena esté vacía al inicio
+    memset(entrada, 0, 50); // se asegura de que la cadena esté vacía al inicio
 
     while (timeElapsed < timeout) {
         for (int i = 'A'; i <= 'Z'; i++) { // Solo letras mayúsculas
@@ -366,7 +368,7 @@ void temporizadorDeEntrada(int timeout, char* entrada) {
                         *ptr = (char)i; // Guardar la letra presionada
                         printf("%c", *ptr);
                         ptr++; // Mover el puntero al siguiente espacio
-                        *ptr = '\0'; // Null-terminar la cadena
+                        *ptr = '\0'; // terminar la cadena
                     }
                     estadoTeclas[i] = 1; // Marcar la tecla como procesada
                 }
@@ -376,8 +378,8 @@ void temporizadorDeEntrada(int timeout, char* entrada) {
             }
         }
 
-        // Manejo de la tecla de retroceso
-        if (GetAsyncKeyState(VK_BACK) & 0x8000) { // Tecla de retroceso
+        // Para borrar
+        if (GetAsyncKeyState(VK_BACK) & 0x8000) {
             if (ptr > entrada) { // Verifica si hay caracteres para borrar
                 ptr--; // Mover el puntero hacia atrás
                 *ptr = '\0'; // Null-terminar la cadena después de borrar
@@ -385,9 +387,9 @@ void temporizadorDeEntrada(int timeout, char* entrada) {
             }
         }
 
-        // Manejo de la tecla ENTER
-        if (GetAsyncKeyState(VK_RETURN) & 0x8000) { // Tecla ENTER
-            break; // Salir del bucle si se presiona ENTER
+        // Ingresar/confirmar
+        if (GetAsyncKeyState(VK_RETURN) & 0x8000) {
+            break;
         }
 
         Sleep(100); // Esperar 100 ms
@@ -405,7 +407,7 @@ void temporizadorDeEntrada(int timeout, char* entrada) {
 void juegosXTurno(t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaCompletar, FILE* informe) {
     char ingresa[50] = "";  // Inicializa la cadena como vacía
     char* ptr;
-    printf("Secuencia actual (mostrar hasta el digito %d):\n", cant + 1);
+    printf("Secuencia actual:\n");
     mostrarDeAUno(orig, cant, secuen);
     system("cls");
 
@@ -468,7 +470,7 @@ int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* c
                     fflush(stdin);
                     printf("Ingrese cuantas vidas quiere gastar (maximo %d): ", *vidas);
                     scanf("%d", &vidasASacar);
-                } while ((vidasASacar > *vidas) && (vidasASacar > *cant));
+                } while ((vidasASacar > *vidas) || (vidasASacar > (*cant)+1) || vidasASacar <= 0);
 
                 // Retroceder la secuencia según las vidas gastadas
                 while ((*contParaRestar < vidasASacar) && (*cant - *contParaRestar) >= 0) {
@@ -515,31 +517,29 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
     int gastaVidas;
     int gastoPrevio = 0;
     int cantParaRestar = 0;
-    int segsOrig = segsParaCompletar;
 
     char txt_informe[31] = "informe_texto_";
     char fechaActual[20];
-
-    FILE *informe = fopen(fechaActual,"wt");
-
-    crearCola(&tc);
-    crearCola(&tc_aux);
     crearFecha(fechaActual);
     strcat(txt_informe,fechaActual);
 
+    FILE *informe = fopen(fechaActual,"wt");
     if(!informe){
         printf("Error al crear informe.\n");
         return;
     }
 
+    crearCola(&tc);
+    crearCola(&tc_aux);
+
+
     for (i = 0; i < cantJug; i++) {
         system("cls");
-         Sleep(3000);
-        // Generar secuencia y agregar a la cola
+        Sleep(3000);
         generarSecuencia(&tc);
         traducirAColores(&tc,sizeof(char));
         printf("=========TURNO DEL JUGADOR: %s=========\n", *(nombres + i));
-        puntosXJugador = 0;  // Inicializar los puntos del jugador
+        puntosXJugador = 0;
         fprintf(informe,"Jugador: %s\n",*(nombres + i));
         Sleep(1000);
         while (vidas >= 0 && gastaVidas != -2) {
@@ -569,13 +569,11 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
                 fprintf(informe,"Obtuvo 3 puntos por esta ronda\n");
                 cant++;
                 cantParaRestar = 0;
-                //segsParaCompletar++; //El tiempo aumenta a medida que avanzan las rondas
                 break;
             case 1:
                 puntosXJugador += 1;  // Usó vidas, solo un punto
                 fprintf(informe,"Obtuvo 1 punto por esta ronda\n");
                 cant++;
-               // segsParaCompletar++; //El tiempo aumenta a medida que avanzan las rondas
                 gastoPrevio = 0; //reiniciamos el marcador de gastos
                 break;
             }
@@ -595,7 +593,6 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
         *(puntos + i) = puntosXJugador;
         fprintf(informe,"Total de puntos del jugador %s: %d\n", *(nombres+i),*(puntos+i));
         puntosXJugador = 0;
-        segsParaCompletar = segsOrig;
         gastaVidas = 0;
     }
 
@@ -619,14 +616,16 @@ void mostrarYGuardarGanadores(char** nombres, int puntos[],int cantJug, FILE* ar
     }
 }
 
-void* buscarMayor (void* vec, size_t ce, size_t tam,int cmp(const void* a, const void* b)){
+void* buscarMayor (void* vec, size_t ce, size_t tam, int cmp(const void* a, const void* b)){
     int i;
     void* mayor = vec;
-    for(i = 1; i< ce;i++){
-        if(cmp(mayor,vec) > 0){
-            mayor= vec;
+    void* actual = vec;  // Puntero auxiliar para iterar por el vector
+
+    for(i = 1; i < ce; i++){
+        actual += tam;  // Avanza al siguiente elemento
+        if(cmp(mayor, actual) < 0){  // Si el actual es mayor que el almacenado en mayor
+            mayor = actual;  // Actualiza el puntero mayor
         }
-        vec+= tam;
     }
 
     return mayor;
