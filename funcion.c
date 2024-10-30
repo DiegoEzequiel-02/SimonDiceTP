@@ -351,7 +351,9 @@ void traducirAColores(t_cola *c, unsigned tam){
 int temporizadorDeEntrada(int timeout,t_cola* cola) {
     int timeElapsed = 0;
     int estadoTeclas[256] = {0}; // Array para rastrear el estado de las teclas
-    int termino;
+    int termino = 0;
+
+    FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
     while (timeElapsed < timeout) {
         // Revisar solo las teclas especificadas
         if ((GetAsyncKeyState('A') & 0x8000) && estadoTeclas['A'] == 0) {
@@ -410,6 +412,7 @@ int temporizadorDeEntrada(int timeout,t_cola* cola) {
 
         if ((GetAsyncKeyState('H') & 0x8000) && !colaVacia(cola)) { //Letra de ayuda, verifica si el usuario ingresó al menos una letra
             timeElapsed = timeout;
+            FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
             return 1;
         }
 
@@ -474,11 +477,11 @@ void juegosXTurno(t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaC
             *vidas-=1;
             vidasASacar--;
         }
-        if(colaVacia(aux)){
+        if(colaVacia(aux) && *vidas == 0){
             mostrarDeAUno(orig,cant,secuen);
         }
-        fflush(stdin);
-        printf("Ingrese secuencia (tiene %d segundos): ", segsParaCompletar);
+        Sleep(300);
+        printf("Ingrese secuencia (tiene %d segundos) (SOLO LETRAS PENDIENTES | SI NO TIENE PENDIENTES SOLO PRESIONE ENTER): ", segsParaCompletar);
         fintiempo = temporizadorDeEntrada(segsParaCompletar * 1000,aux);
     }
 
