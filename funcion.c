@@ -471,7 +471,7 @@ void juegosXTurno(t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaC
             fflush(stdin);
             printf("Cuantos pasos desea volver? (Recuerde que usted tiene %d vidas): ",(*vidas));
             scanf("%d",&vidasASacar);
-        }while(vidasASacar < 0 || vidasASacar > *vidas || vidasASacar > (cantletras + 1));
+        }while(vidasASacar <= 0 || vidasASacar > *vidas || vidasASacar > (cantletras + 1));
         while(vidasASacar > 0){
             sacarDeCola(aux,&c_aux,sizeof(char));
             *vidas-=1;
