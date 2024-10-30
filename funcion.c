@@ -528,11 +528,12 @@ int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* c
                 } while ((vidasASacar > *vidas) || (vidasASacar > (*cant)+1) || vidasASacar <= 0);
 
                 // Retroceder la secuencia según las vidas gastadas
-                while ((*contParaRestar < vidasASacar) && (*cant - *contParaRestar) >= 0) {
+                while (vidasASacar > 0) {
                     sacarDeCola(tc_aux, &aux, sizeof(char));
                     *contParaRestar += 1;
+                    vidasASacar--;
+                    *vidas-=1;
                 }
-                *vidas -= vidasASacar;  // Descontar las vidas
 
                 printf("Ahora tiene %d vidas\n", *vidas);
 
@@ -603,7 +604,7 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
 
             if(gastaVidas == -1){
                 printf("Lo ultimo colocado:\n");
-                mostrarParcial(&tc_aux,cant - cantParaRestar); //Mostramos como quedó la secuencia despues de perder vidas
+                mostrarParcial(&tc_aux,cant - (cantParaRestar-1)); //Mostramos como quedó la secuencia despues de perder vidas
             }
 
             juegosXTurno(&tc,&tc_aux,cant,secuen,segsParaCompletar,informe,&vidas);
@@ -632,6 +633,7 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
                 cant++;
                 gastoPrevio = 0; //reiniciamos el marcador de gastos
                 segsParaCompletar++;
+                cantParaRestar = 0;
                 break;
             }
 
