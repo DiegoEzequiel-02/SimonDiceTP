@@ -119,7 +119,7 @@ int pedirNombres(){
         printf("Ingrese nombre del jugador %d: ", contJug + 1);
         fgets(nombre, MAX_NOMBRE, stdin);
 
-        // Elimina el salto de lÃ­nea que fgets guarda
+        // Elimina el salto de línea que fgets guarda
         nombre[strcspn(nombre, "\n")] = '\0';
 
         // Si el nombre no es ".", lo guarda
@@ -150,8 +150,8 @@ void guardarNombres(char** nombres) {
         return;
     }
     while (fgets(nombre, sizeof(nombre), pf)) {
-        nombre[strcspn(nombre, "\n")] = '\0';  // Elimina el salto de lÃ­nea que fgets guarda
-        *(nombres + i) = (char*)malloc((my_strlen(nombre) + 1) * sizeof(char)); //Aseguramos que se guarde el nombre con el tamaÃ±o que necesita
+        nombre[strcspn(nombre, "\n")] = '\0';  // Elimina el salto de línea que fgets guarda
+        *(nombres + i) = (char*)malloc((my_strlen(nombre) + 1) * sizeof(char)); //Aseguramos que se guarde el nombre con el tamaño que necesita
         strcpy(*(nombres + i), nombre);
         i++;
     }
@@ -180,7 +180,7 @@ void sortearJugadores(char** nombres, int cantJug) {
     int pos;
 
     cant = 0;
-    // Inicializa el generador de nÃºmeros aleatorios
+    // Inicializa el generador de números aleatorios
     srand(time(NULL));
 
     while (cant < cantJug) {
@@ -196,24 +196,24 @@ void sortearJugadores(char** nombres, int cantJug) {
 
 size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp) {
     size_t realsize = size * nmemb;
-    t_cola *tc = (t_cola *)userp;  // La cola se pasa a travÃ©s de userp
+    t_cola *tc = (t_cola *)userp;  // La cola se pasa a través de userp
 
     char buffer[realsize + 1];
     // Crear un buffer temporal para copiar los datos entrantes
     memcpy(buffer, contents, realsize);
-    buffer[realsize] = '\0';  // Asegurarse de que sea una cadena vÃ¡lida
+    buffer[realsize] = '\0';  // Asegurarse de que sea una cadena válida
 
-    // Usar strtok para separar los nÃºmeros por saltos de lÃ­nea
+    // Usar strtok para separar los números por saltos de línea
     char *token = strtok(buffer, "\n");
     while (token != NULL) {
-        int numero = atoi(token);  // Convertir el nÃºmero a entero
+        int numero = atoi(token);  // Convertir el número a entero
 
-        // Agregar el nÃºmero a la cola
+        // Agregar el número a la cola
         if (!agregarACola(tc, &numero, sizeof(int))) {
             fprintf(stderr, "Error al agregar el numero a la cola\n");
         }
 
-        token = strtok(NULL, "\n");  // Obtener el siguiente nÃºmero
+        token = strtok(NULL, "\n");  // Obtener el siguiente número
     }
 
     return realsize;
@@ -221,7 +221,7 @@ size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp) {
 
 void menu(){
     char opc;
-    int filas = 0;  // NÃºmero mÃ¡ximo de jugadores
+    int filas = 0;  // Número máximo de jugadores
     char dif;
     int vidas;
     int segs;
@@ -288,7 +288,7 @@ void generarSecuencia(t_cola* tc) {
         headers = curl_slist_append(headers, "X-Secret: FADSFAS");
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
-        // Establecer la funciÃ³n de retorno de llamada para manejar la respuesta
+        // Establecer la función de retorno de llamada para manejar la respuesta
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, tc);  // Pasar la cola a WriteCallback
@@ -327,7 +327,7 @@ void traducirAColores(t_cola *c, unsigned tam){
         switch(*(int*)aux->info){  // Interpreta info como un entero
         case 1:
             aux->tam = tam;
-            *((char*)aux->info) = 'R';  // Reemplaza con el carÃ¡cter correspondiente
+            *((char*)aux->info) = 'R';  // Reemplaza con el carácter correspondiente
             break;
         case 2:
             aux->tam = tam;
@@ -408,7 +408,7 @@ int temporizadorDeEntrada(int timeout,t_cola* cola) {
             break;
         }
 
-        if ((GetAsyncKeyState('H') & 0x8000) && !colaVacia(cola)) {
+        if ((GetAsyncKeyState('H') & 0x8000) && !colaVacia(cola)) { //Letra de ayuda, verifica si el usuario ingresó al menos una letra
             timeElapsed = timeout;
             return 1;
         }
@@ -421,7 +421,7 @@ int temporizadorDeEntrada(int timeout,t_cola* cola) {
         printf("\nNO HAY MAS TIEMPO\n");
     }
 
-    FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE)); //Limpia el "buffer" de las teclas ingresadas en esta funciÃ³n
+    FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE)); //Limpia el "buffer" de las teclas ingresadas en esta función
     fflush(stdin);
     return termino;
 }
@@ -460,15 +460,15 @@ void juegosXTurno(t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaC
 
     printf("Ingrese secuencia (tiene %d segundos): ", segsParaCompletar);
     fintiempo = temporizadorDeEntrada(segsParaCompletar * 1000,aux); // Pasar el buffer de entrada
-    while(fintiempo == 1) { //interrumpieron el juego para volver atrÃ¡s
+    while(fintiempo == 1 && *vidas > 0) { //interrumpieron el juego para volver atrás
         FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE)); //Limpia el "buffer" de las teclas ingresadas anteriormente
         cantletras = contadorDeNodos(aux);
         system("cls");
         do{
             fflush(stdin);
-            printf("Cuantos pasos desea volver? (maximo %d): ",cantletras);
+            printf("Cuantos pasos desea volver? (Recuerde que usted tiene %d vidas): ",(*vidas));
             scanf("%d",&vidasASacar);
-        }while(vidasASacar < 0 || vidasASacar > (cantletras+1) || (cantletras - vidasASacar) < 0);
+        }while(vidasASacar < 0 || vidasASacar > *vidas || vidasASacar > (cantletras + 1));
         while(vidasASacar > 0){
             sacarDeCola(aux,&c_aux,sizeof(char));
             *vidas-=1;
@@ -511,12 +511,12 @@ int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* c
         if (*vidas > 0) {
                 do {
                     fflush(stdin);
-                    FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE)); //Limpia el "buffer" de las teclas ingresadas en la funciÃ³n anterior
+                    FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE)); //Limpia el "buffer" de las teclas ingresadas en la función anterior
                     printf("Secuencia incorrecta\n");
                     printf("Tiene %d vidas, quiere gastar? (1 - SI | 0 - NO):", *vidas);
                     if (scanf("%d", &gastaVidas) != 1) { // Verificar si la entrada fue exitosa
                         printf("Entrada invalida. Por favor ingresa 1 o 0.\n");
-                        gastaVidas = -1; // Para asegurarte de que la condiciÃ³n del bucle siga siendo verdadera
+                        gastaVidas = -1; // Para asegurarte de que la condición del bucle siga siendo verdadera
                     }
                 } while (gastaVidas != 1 && gastaVidas != 0);
 
@@ -527,7 +527,7 @@ int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* c
                     scanf("%d", &vidasASacar);
                 } while ((vidasASacar > *vidas) || (vidasASacar > (*cant)+1) || vidasASacar <= 0);
 
-                // Retroceder la secuencia segÃºn las vidas gastadas
+                // Retroceder la secuencia según las vidas gastadas
                 while ((*contParaRestar < vidasASacar) && (*cant - *contParaRestar) >= 0) {
                     sacarDeCola(tc_aux, &aux, sizeof(char));
                     *contParaRestar += 1;
@@ -536,7 +536,7 @@ int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* c
 
                 printf("Ahora tiene %d vidas\n", *vidas);
 
-                fprintf(informe,"GastÃ³ %d vidas, vidas actuales: %d\n",vidasASacar,*vidas);
+                fprintf(informe,"Gastó %d vidas, vidas actuales: %d\n",vidasASacar,*vidas);
 
                 printf("RECUERDE SOLO PONER LAS LETRAS PENDIENTES!!!\n");
                 Sleep(5000);
@@ -556,9 +556,9 @@ int verificarSecuencia(t_cola* tc, t_cola* tc_aux, int *cant, int* vidas, int* c
         printf("SECUENCIA CORRECTA! Vamos a la siguiente...\n");
         vaciarCola(tc_aux);  // Limpiar la cola auxiliar
         if(gastoPrevio == 1){
-            return 1; //gastÃ³ vidas para completarlo
+            return 1; //gastó vidas para completarlo
         }else{
-            return 0; //no gastÃ³ vidas
+            return 0; //no gastó vidas
         }
     }
 }
@@ -603,33 +603,35 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
 
             if(gastaVidas == -1){
                 printf("Lo ultimo colocado:\n");
-                mostrarParcial(&tc_aux,cant - cantParaRestar); //Mostramos como quedÃ³ la secuencia despues de perder vidas
+                mostrarParcial(&tc_aux,cant - cantParaRestar); //Mostramos como quedó la secuencia despues de perder vidas
             }
 
             juegosXTurno(&tc,&tc_aux,cant,secuen,segsParaCompletar,informe,&vidas);
             fflush(stdin);
             gastaVidas = verificarSecuencia(&tc,&tc_aux,&cant,&vidas,&cantParaRestar, informe, gastoPrevio);
 
-             // Verificar si usÃ³ vidas o no y asignar los puntos
+             // Verificar si usó vidas o no y asignar los puntos
             switch(gastaVidas){
             case -2:
                 vidas = 0;
                 system("cls");
                 break; //termina su turno
-            case -1: //vuelve a intentar, pero gastÃ³ vidas
+            case -1: //vuelve a intentar, pero gastó vidas
                 gastoPrevio = 1;
                 break;
             case 0:
-                puntosXJugador += 3;  // No usÃ³ vidas, tres puntos
+                puntosXJugador += 3;  // No usó vidas, tres puntos
                 fprintf(informe,"Obtuvo 3 puntos por esta ronda\n");
                 cant++;
                 cantParaRestar = 0;
+                segsParaCompletar++;
                 break;
             case 1:
-                puntosXJugador += 1;  // UsÃ³ vidas, solo un punto
+                puntosXJugador += 1;  // Usó vidas, solo un punto
                 fprintf(informe,"Obtuvo 1 punto por esta ronda\n");
                 cant++;
                 gastoPrevio = 0; //reiniciamos el marcador de gastos
+                segsParaCompletar++;
                 break;
             }
 
@@ -641,7 +643,7 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
             fflush(stdin);
         }
 
-        cant = 0;  // Iniciar la secuencia con un dÃ­gito
+        cant = 0;  // Iniciar la secuencia con un dígito
         vidas = vidasOriginal;
         vaciarCola(&tc);
         vaciarCola(&tc_aux);
@@ -700,7 +702,7 @@ void guardarColaEnArchivo(t_cola* cola, FILE* informe, int cant) {
         actual = actual->sig_nodo;
         cont++;
     }
-    fprintf(informe, "\n");  // Salto de lÃ­nea al final
+    fprintf(informe, "\n");  // Salto de línea al final
 }
 
 int compararColas(t_cola *cola1, t_cola *cola2, int cant) {
@@ -722,14 +724,14 @@ int compararColas(t_cola *cola1, t_cola *cola2, int cant) {
     if (contador > cant) {
         // Verificar si cola2 tiene nodos adicionales
         if (nodo2 != NULL) {
-            return 0;  // Si cola2 tiene mÃ¡s nodos, no son iguales
+            return 0;  // Si cola2 tiene más nodos, no son iguales
         }
         return 1;  // Si ambos tienen la misma longitud hasta 'cant', son iguales
     }
 
     // Si el contador es menor que cant, tienen la misma longitud
     if (contador < cant && (nodo1 || nodo2)) {
-        return 0;  // Si una cola es mÃ¡s larga que la otra, no son iguales
+        return 0;  // Si una cola es más larga que la otra, no son iguales
     }
 
     // Si todo fue igual y se recorrieron todos los elementos, las colas son iguales
@@ -743,7 +745,7 @@ void mostrar(const void* a){
 void mostrarDeAUno(t_cola* c, int cant, int segsSecuencia){
     int cont = 0;
     t_nodo* actual = c->prim;  // Usar un puntero auxiliar en lugar de modificar 'prim'
-    float tiempoPorItem = segsSecuencia/(cant+1);
+    float tiempoPorItem = (float)segsSecuencia/(cant+1);
     while(actual != NULL && cont <= cant){
         printf("(%d) ", cont+1);
         mostrar(actual->info);
