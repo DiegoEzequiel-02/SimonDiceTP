@@ -477,6 +477,7 @@ void juegosXTurno(t_cola* orig, t_cola* aux, int cant, int secuen, int segsParaC
         if(colaVacia(aux)){
             mostrarDeAUno(orig,cant,secuen);
         }
+        fflush(stdin);
         printf("Ingrese secuencia (tiene %d segundos): ", segsParaCompletar);
         fintiempo = temporizadorDeEntrada(segsParaCompletar * 1000,aux);
     }
@@ -587,7 +588,6 @@ void iniciarJuego(char** nombres, int cantJug, int* puntos, int segsParaCompleta
 
     crearCola(&tc);
     crearCola(&tc_aux);
-
 
     for (i = 0; i < cantJug; i++) {
         system("cls");
