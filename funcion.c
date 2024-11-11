@@ -1,59 +1,37 @@
 #include "funcion.h"
 
-void guardarConfiguracion (char dif){
-    int secuen;
-    int tiempo;
-    int vidas;
-    FILE *pf = fopen("config.txt","wt");
-    if (!pf) {
-        printf("Error al crear el archivo de configuracion para escritura.\n");
-        return;
-    }
-    switch(dif){
-    case 'F':
-        secuen = 10;
-        tiempo = 20;
-        vidas = 3;
-        break;
-    case 'M':
-        secuen = 8;
-        tiempo = 15;
-        vidas = 2;
-        break;
-    case 'D':
-        secuen = 5;
-        tiempo = 10;
-        vidas = 1;
-        break;
-    }
-
-    fprintf(pf,"%c | %d | %d | %d\n",dif,secuen,tiempo,vidas);
-    fclose(pf);
-}
-
-void leerConfiguraciones(int* vidas,int* segs,int* secuen){
+int leerConfiguraciones(char dificultad,int* vidas,int* segs,int* secuen){
     char dif;
     int elementosLeidos;
     FILE *pf = fopen("config.txt","rt");
     if(!pf){
         printf("Error al leer la configuracion.\n");
-        return;
+        return 0;
     }
 
-    elementosLeidos = fscanf(pf,"%c | %d | %d | %d",&dif,secuen,segs,vidas);
+    do{
+        elementosLeidos = fscanf(pf,"%c | %d | %d | %d",&dif,secuen,segs,vidas);
+    }while(elementosLeidos != 4 || dif != dificultad);
+
     if (elementosLeidos != 4) { // Si no se leyeron los 4 elementos, el formato es incorrecto
         printf("Error: El archivo de configuracion tiene un formato incorrecto.\n");
         fclose(pf);
-        return;
+        return 0;
     }
     if(*vidas > 5){
-        *vidas = 5;
+        printf("El archivo tiene una cantidad de vidas incorrecta.\n");
+        fclose(pf);
+        return 0;
     }
     if(*secuen > 20){
-        *secuen = 20;
+        printf("El archivo tiene una cantidad de segundos para ver la secuencia incorrectos.\n");
+        fclose(pf);
+        return 0;
     }
     if(*segs > 20){
-        *segs = 20;
+        printf("El archivo tiene una cantidad de segundos para responder incorrectos.\n");
+        fclose(pf);
+        return 0;
     }
     printf("Nivel: %c\n",dif);
     printf("Segundos de secuencia completa: %d\n",*secuen);
@@ -61,6 +39,8 @@ void leerConfiguraciones(int* vidas,int* segs,int* secuen){
     printf("Vidas por participantes: %d\n",*vidas);
 
     fclose(pf);
+
+    return 1;
 }
 
 void vaciarVector(int vec[], int filas){
@@ -229,6 +209,7 @@ void menu(){
     int listo;
     char** nombres;
     int* puntos;
+    int cancel = 1;
     do{
         fflush(stdin);
         printf("[A] Jugar\n");
@@ -249,9 +230,12 @@ void menu(){
             guardarNombres(nombres);
             dificultad(&dif);
 
-            guardarConfiguracion(dif);
-            leerConfiguraciones(&vidas,&segs,&secuen);
-
+            cancel = leerConfiguraciones(dif,&vidas,&segs,&secuen);
+            if(cancel == 0){
+                free(nombres);
+                free(puntos);
+                return;
+            }
             sortearJugadores(nombres,filas);
 
             printf("\nNuevo orden:\n");

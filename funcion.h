@@ -10,8 +10,7 @@
 #include <windows.h>
 #include "cola.h"
 
-void guardarConfiguracion (char dif);
-void leerConfiguraciones(int* vidas,int* segs,int* secuen);
+int leerConfiguraciones(char dificultad,int* vidas,int* segs,int* secuen);
 void vaciarVector(int vec[], int filas);
 void** crearMatriz(int filas, int columnas, size_t tamElem);
 void mostrarNombres(char** nombres, int cant);
