@@ -84,18 +84,20 @@ void mostrarNombres(char** nombres, int cant){
     }
 }
 
-int pedirNombres(){
+int pedirNombres(char*** nombres){
     int contJug = 0;
+    int capacidad = 0;
     char nombre[MAX_NOMBRE];
-    FILE* pf = fopen("nombres.txt","wt");
-    if(!pf){
-        printf("No se puede crear jugadores en este momento.\n");
-        return 0;
-    }
+     // Para usar punteros y moverse por el arreglo de nombres
+    char **jugadorActual = *nombres;
+
+    *nombres = NULL;  // Inicializa el puntero a NULL
+
     printf("Inserte jugadores (MAXIMO 20 CARACTERES | TERMINA INGRESANDO '.'): \n");
 
+
+
     do {
-        fflush(stdin);
         printf("Ingrese nombre del jugador %d: ", contJug + 1);
         fgets(nombre, MAX_NOMBRE, stdin);
 
@@ -104,14 +106,35 @@ int pedirNombres(){
 
         // Si el nombre no es ".", lo guarda
         if (strcmp(nombre, ".") != 0 && strcmp(nombre,"") != 0){
-            fprintf(pf,"%s\n",nombre);
+            if (contJug == capacidad) {
+                capacidad = capacidad == 0 ? 1 : capacidad * 2;  // Duplicar la capacidad
+                *nombres = realloc(*nombres, capacidad * sizeof(char*));  // Cambiar tamaño para nombres
+                if (*nombres == NULL) {
+                    printf("Error al asignar memoria.\n");
+                    return 0;
+                }
+                jugadorActual = *nombres + contJug;  // Apunta a la siguiente posición libre
+            }
+
+            // Asignar memoria para el nuevo nombre
+            *jugadorActual = malloc(strlen(nombre) + 1);
+            if (*jugadorActual == NULL) {
+                printf("Error al asignar memoria para el nombre.\n");
+                return 0;
+            }
+
+            // Copiar el nombre a la memoria asignada
+            strcpy(*jugadorActual, nombre);
+
+            // Avanzar el puntero al siguiente lugar
+            jugadorActual++;
+
             contJug++;
         }
     } while (strcmp(nombre, ".") != 0);
-    fclose(pf);
+
     return contJug;
 }
-
 int my_strlen(char* cad){
     int cont = 0;
     while(*cad != '\0'){
@@ -119,25 +142,6 @@ int my_strlen(char* cad){
         cad++;
     }
     return cont;
-}
-
-void guardarNombres(char** nombres) {
-    FILE* pf = fopen("nombres.txt", "rt");
-    char nombre[MAX_NOMBRE];
-    int i = 0;
-    if (!pf) {
-        printf("No se pudo guardar jugadores en este momento.\n");
-        return;
-    }
-    while (fgets(nombre, sizeof(nombre), pf)) {
-        nombre[strcspn(nombre, "\n")] = '\0';  // Elimina el salto de línea que fgets guarda
-        *(nombres + i) = (char*)malloc((my_strlen(nombre) + 1) * sizeof(char)); //Aseguramos que se guarde el nombre con el tamaño que necesita
-        strcpy(*(nombres + i), nombre);
-        i++;
-    }
-
-    fclose(pf);
-    remove("nombres.txt");
 }
 
 void dificultad(char* dif){
@@ -221,13 +225,11 @@ void menu(){
     fflush(stdin);
 
     if(opc == 'A'){
-        filas = pedirNombres();
+        filas = pedirNombres(&nombres);
         if(filas != 0){
-            nombres = (char**)crearMatriz(filas, MAX_NOMBRE, sizeof(char));
             puntos = (int*)malloc(sizeof(int));
             vaciarVector(puntos,filas);
 
-            guardarNombres(nombres);
             dificultad(&dif);
 
             cancel = leerConfiguraciones(dif,&vidas,&segs,&secuen);
